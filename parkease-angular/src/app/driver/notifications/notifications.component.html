@@ -1,0 +1,51 @@
+<div class="container py-4">
+
+  <!-- Loading state -->
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading notifications...
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error"
+       class="alert alert-danger d-flex align-items-center" role="alert">
+    <span>{{error}}</span>
+    <button class="btn btn-sm btn-outline-dark ms-auto"
+            (click)="loadData()">
+      Retry
+    </button>
+  </div>
+
+  <div *ngIf="!loading && !error">
+
+    <div class="page-header">
+      <h2>Notifications</h2>
+    </div>
+
+    <div *ngIf="notifications.length===0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">notifications</mat-icon>
+      <h4>No notifications</h4>
+      <p>You're all caught up!</p>
+    </div>
+
+    <div class="d-flex flex-column gap-3" *ngIf="notifications.length>0">
+      <div class="feature-card"
+           *ngFor="let n of notifications">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 style="font-weight:600; font-size:0.92rem; margin:0;">{{n.title}}</h6>
+          <span class="status-badge"
+            [class.badge-completed]="n.type==='PAYMENT_SUCCESS' || n.type==='BOOKING_CONFIRMED'"
+            [class.badge-cancelled]="n.type==='PAYMENT_FAILED' || n.type==='BOOKING_CANCELLED'"
+            [class.badge-active]="n.type!=='PAYMENT_SUCCESS' && n.type!=='BOOKING_CONFIRMED' && n.type!=='PAYMENT_FAILED' && n.type!=='BOOKING_CANCELLED'">
+            {{n.type}}
+          </span>
+        </div>
+        <p style="color:#555; font-size:0.87rem; margin-bottom:8px;">{{n.message}}</p>
+        <small style="color:#aaa; font-size:0.78rem;">
+          {{n.createdAt | date:'dd MMM yyyy, hh:mm a'}}
+        </small>
+      </div>
+    </div>
+
+  </div>
+</div>

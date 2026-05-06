@@ -1,0 +1,181 @@
+<div class="container py-4">
+
+  <!-- Loading state -->
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading lot details...
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Lot info card -->
+    <div class="feature-card mb-4" *ngIf="lot">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <h3 style="font-weight:700; font-size:1.4rem; margin:0;">{{lot.name}}</h3>
+        <span class="status-badge"
+          [class.badge-active]="lot.isOpen"
+          [class.badge-cancelled]="!lot.isOpen">
+          {{lot.isOpen ? 'Open' : 'Closed'}}
+        </span>
+      </div>
+      <p class="text-muted mb-3" style="font-size:0.88rem;">{{lot.address}}, {{lot.city}}</p>
+      <div class="d-flex gap-4">
+        <div>
+          <span style="font-weight:700; font-size:1.2rem;">{{spots.length}}</span>
+          <span class="text-muted ms-1" style="font-size:0.85rem;">available</span>
+        </div>
+        <div>
+          <span style="font-weight:700; font-size:1.2rem;">{{allSpots.length}}</span>
+          <span class="text-muted ms-1" style="font-size:0.85rem;">total</span>
+        </div>
+        <div *ngIf="lot.openTime">
+          <span class="text-muted" style="font-size:0.85rem;">{{lot.openTime}} – {{lot.closeTime}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spots section -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 style="font-weight:600; margin:0;">Available Spots</h5>
+      <button class="btn btn-sm btn-outline-dark" (click)="refreshSpots()" title="Refresh spots">
+        <mat-icon style="font-size:1rem; width:1rem; height:1rem; vertical-align:middle;">refresh</mat-icon>
+      </button>
+    </div>
+
+    <div *ngIf="spots.length === 0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">local_parking</mat-icon>
+      <h4>No available spots</h4>
+      <p>All spots are currently occupied.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="spots.length > 0">
+      <table class="clean-table">
+        <thead>
+          <tr><th>Spot</th><th>Floor</th><th>Type</th><th>Vehicle</th><th>Price/hr</th><th>EV</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of spots">
+            <td><strong>{{s.spotNumber}}</strong></td>
+            <td>{{s.floor}}</td>
+            <td>{{s.spotType}}</td>
+            <td>{{s.vehicleType}}</td>
+            <td>Rs.{{s.pricePerHour}}</td>
+            <td>
+              <span *ngIf="s.isEVCharging" style="color:#28a745; display:flex; align-items:center; gap:2px;">
+                <mat-icon style="font-size:1rem; width:1rem; height:1rem;">bolt</mat-icon> Yes
+              </span>
+              <span *ngIf="!s.isEVCharging">—</span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-dark-primary"
+                      (click)="selectSpot(s)">Book</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Booking form -->
+    <div class="feature-card mt-4" *ngIf="showBookingForm && !showPaymentForm">
+      <h5 style="font-weight:600; margin-bottom:16px;">
+        Book Spot {{selectedSpot?.spotNumber}} — Rs.{{selectedSpot?.pricePerHour}}/hr
+      </h5>
+
+      <div class="alert alert-danger py-2" *ngIf="errorMsg">{{errorMsg}}</div>
+
+      <!-- Registered vehicle selector -->
+      <div *ngIf="vehicles.length > 0" class="mb-3">
+        <label style="font-weight:500; font-size:0.88rem;">Select Registered Vehicle (optional)</label>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+          <button *ngFor="let v of vehicles"
+                  type="button"
+                  class="btn btn-sm btn-outline-dark"
+                  [class.btn-dark-primary]="booking.vehiclePlate === v.licensePlate"
+                  (click)="selectVehicle(v)">
+            <mat-icon style="font-size:1rem; width:1rem; height:1rem; vertical-align:middle;">directions_car</mat-icon>
+            {{v.licensePlate}} ({{v.vehicleType}})
+          </button>
+        </div>
+        <small class="text-muted">Or enter manually below</small>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Vehicle Plate</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="booking.vehiclePlate" placeholder="MH01AB1234">
+        </div>
+        <div class="col-md-6">
+          <label>Vehicle Type</label>
+          <select class="form-select" [(ngModel)]="booking.vehicleType">
+            <option value="CAR">Car</option>
+            <option value="MOTORCYCLE">Motorcycle</option>
+            <option value="TRUCK">Truck</option>
+            <option value="VAN">Van</option>
+            <option value="SUV">SUV</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label>Booking Type</label>
+          <select class="form-select" [(ngModel)]="booking.bookingType">
+            <option value="PRE">Pre-booked (Pay Now)</option>
+            <option value="WALK_IN">Walk-In (Pay at Exit)</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label>Start Time</label>
+          <input type="datetime-local" class="form-control"
+                 [(ngModel)]="booking.startTime">
+        </div>
+        <div class="col-md-4">
+          <label>End Time</label>
+          <input type="datetime-local" class="form-control"
+                 [(ngModel)]="booking.endTime">
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-dark-primary"
+                (click)="submitBooking()" [disabled]="submitting">
+          {{ submitting ? 'Booking...' : 'Confirm Booking' }}
+        </button>
+        <button class="btn btn-outline-dark" (click)="showBookingForm=false">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Payment form (shown after PRE booking) -->
+    <div class="feature-card mt-4" *ngIf="showPaymentForm">
+      <h5 style="font-weight:600; margin-bottom:4px;">Complete Payment</h5>
+      <p class="text-muted mb-3" style="font-size:0.88rem;">
+        Booking #{{createdBooking?.bookingId}} confirmed. Pay now to secure your spot.
+      </p>
+
+      <div class="alert alert-info py-2 mb-3">
+        <strong>Estimated Amount:</strong> Rs.{{createdBooking?.totalAmount || estimatedAmount}}
+      </div>
+
+      <div class="alert alert-danger py-2" *ngIf="paymentError">{{paymentError}}</div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Payment Mode</label>
+          <select class="form-select" [(ngModel)]="paymentMode">
+            <option value="CARD">Card</option>
+            <option value="UPI">UPI</option>
+            <option value="WALLET">Wallet</option>
+            <option value="CASH">Cash</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-dark-primary"
+                (click)="submitPayment()" [disabled]="paymentSubmitting">
+          {{ paymentSubmitting ? 'Processing...' : 'Pay Rs.' + (createdBooking?.totalAmount || estimatedAmount) }}
+        </button>
+        <button class="btn btn-outline-dark" (click)="cancelPayment()">Skip for Now</button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

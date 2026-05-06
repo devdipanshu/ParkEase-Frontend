@@ -1,0 +1,56 @@
+<div class="min-vh-100 d-flex align-items-center
+            justify-content-center bg-white py-5">
+  <div style="width:100%; max-width:400px; padding:0 20px;">
+
+    <!-- Logo -->
+    <div class="text-center mb-8" style="margin-bottom:32px;">
+      <div style="font-size:2rem; font-weight:700; letter-spacing:-1px; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <mat-icon style="font-size:2rem; width:2rem; height:2rem;">local_parking</mat-icon> ParkEase
+      </div>
+      <p class="text-muted mt-2" style="font-size:0.9rem;">
+        Sign in to your account
+      </p>
+    </div>
+
+    <!-- Error -->
+    <div class="alert alert-danger py-2 mb-3"
+         *ngIf="errorMsg" role="alert">
+      {{errorMsg}}
+    </div>
+
+    <!-- Form -->
+    <div class="mb-3">
+      <label>Email address</label>
+      <input type="email"
+             class="form-control"
+             [(ngModel)]="email"
+             placeholder="you@example.com">
+    </div>
+
+    <div class="mb-4">
+      <label>Password</label>
+      <input type="password"
+             class="form-control"
+             [(ngModel)]="password"
+             placeholder="Enter your password">
+    </div>
+
+    <button class="btn btn-dark-primary w-100 py-2"
+            (click)="onLogin()"
+            [disabled]="loading">
+      {{ loading ? 'Signing in...' : 'Sign In' }}
+    </button>
+
+    <div class="text-center mt-4">
+      <span style="font-size:0.85rem; color:#888;">
+        No account?
+        <a routerLink="/register"
+           style="color:#000; font-weight:600;
+                  text-decoration:none;">
+          Register here →
+        </a>
+      </span>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="container py-4">
+
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading your dashboard...
+  </div>
+
+  <div *ngIf="!loading && error"
+       class="alert alert-danger d-flex align-items-center" role="alert">
+    <span>{{error}}</span>
+    <button class="btn btn-sm btn-outline-dark ms-auto" (click)="loadData()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- Page header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h2>Welcome back, {{displayName}}</h2>
+      </div>
+      <a routerLink="/driver/search-lots" class="btn btn-dark-primary">Find Parking</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="data-card">
+          <div class="data-card-number">{{totalBookings}}</div>
+          <div class="data-card-label">Total Bookings</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="data-card">
+          <div class="data-card-number">{{activeBookings}}</div>
+          <div class="data-card-label">Active Now</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="data-card">
+          <div class="data-card-number">{{completedBookings}}</div>
+          <div class="data-card-label">Completed</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="data-card">
+          <div class="data-card-number">{{unreadCount}}</div>
+          <div class="data-card-label">Notifications</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3" *ngFor="let item of quickLinks">
+        <a [routerLink]="item.route" class="feature-card d-block text-decoration-none">
+          <mat-icon style="font-size:2rem; width:2rem; height:2rem; margin-bottom:8px; display:block;">
+            {{item.icon}}
+          </mat-icon>
+          <h5>{{item.title}}</h5>
+          <p>{{item.desc}}</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent bookings -->
+    <div style="margin-top:32px;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 style="font-weight:600; font-size:1rem;">Recent Bookings</h4>
+        <a routerLink="/driver/my-bookings"
+           style="font-size:0.85rem; color:#000; font-weight:600; text-decoration:none;">
+          View all →
+        </a>
+      </div>
+
+      <div *ngIf="bookings.length === 0" class="empty-state">
+        <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">local_parking</mat-icon>
+        <h4>No bookings yet</h4>
+        <p>Find a parking spot to get started.</p>
+        <a routerLink="/driver/search-lots" class="btn btn-dark-primary btn-sm mt-2">Find Parking</a>
+      </div>
+
+      <div class="table-responsive" *ngIf="bookings.length > 0">
+        <table class="clean-table">
+          <thead>
+            <tr><th>#</th><th>Spot</th><th>Status</th><th>Amount</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of bookings | slice:0:5">
+              <td style="color:#888;">{{b.bookingId}}</td>
+              <td>Spot {{b.spotId}}</td>
+              <td>
+                <span class="status-badge"
+                  [class.badge-reserved]="b.status==='RESERVED'"
+                  [class.badge-active]="b.status==='ACTIVE'"
+                  [class.badge-completed]="b.status==='COMPLETED'"
+                  [class.badge-cancelled]="b.status==='CANCELLED'">
+                  {{b.status}}
+                </span>
+              </td>
+              <td>{{b.totalAmount ? 'Rs.' + b.totalAmount : '—'}}</td>
+              <td style="color:#888; font-size:0.85rem;">{{b.startTime | date:'dd MMM yyyy'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

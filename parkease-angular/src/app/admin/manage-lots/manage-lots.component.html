@@ -1,0 +1,110 @@
+<div class="container py-4">
+
+  <!-- Loading -->
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading lots...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error"
+       class="alert alert-danger d-flex align-items-center">
+    <span>{{error}}</span>
+    <button class="btn btn-sm btn-outline-dark ms-auto" (click)="loadData()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !error">
+
+    <div class="page-header">
+      <h2>Manage Parking Lots</h2>
+    </div>
+
+    <div class="alert alert-success py-2 mb-3" *ngIf="successMsg">{{successMsg}}</div>
+
+    <!-- PENDING LOTS -->
+    <h4 class="mb-3">Pending Approval</h4>
+
+    <div *ngIf="pendingLots.length === 0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">hourglass_empty</mat-icon>
+      <h4>No pending lots</h4>
+      <p>All lots are approved.</p>
+    </div>
+
+    <div class="table-responsive mb-4" *ngIf="pendingLots.length > 0">
+      <table class="clean-table">
+        <thead>
+          <tr>
+            <th>#ID</th><th>Name</th><th>City</th>
+            <th>Manager</th><th>Spots</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let lot of pendingLots">
+            <td style="color:#888;">{{lot.lotId}}</td>
+            <td>{{lot.name}}</td>
+            <td>{{lot.city}}</td>
+            <td>#{{lot.managerId}}</td>
+            <td>{{lot.availableSpots}} / {{lot.totalSpots}}</td>
+            <td>
+              <span class="status-badge"
+                [class.badge-active]="lot.isOpen"
+                [class.badge-cancelled]="!lot.isOpen">
+                {{lot.isOpen ? 'Open' : 'Closed'}}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-dark-primary" (click)="approve(lot.lotId!)">Approve</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteLot(lot)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- APPROVED LOTS -->
+    <h4 class="mb-3">Approved Lots</h4>
+
+    <div *ngIf="approvedLots.length === 0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">local_parking</mat-icon>
+      <h4>No approved lots</h4>
+      <p>No parking lots available.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="approvedLots.length > 0">
+      <table class="clean-table">
+        <thead>
+          <tr>
+            <th>#ID</th><th>Name</th><th>City</th><th>Manager</th>
+            <th>Spots</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let lot of approvedLots">
+            <td style="color:#888;">{{lot.lotId}}</td>
+            <td>{{lot.name}}</td>
+            <td>{{lot.city}}</td>
+            <td>#{{lot.managerId}}</td>
+            <td>{{lot.availableSpots}} / {{lot.totalSpots}}</td>
+            <td>
+              <span class="status-badge"
+                [class.badge-active]="lot.isOpen"
+                [class.badge-cancelled]="!lot.isOpen">
+                {{lot.isOpen ? 'Open' : 'Closed'}}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a [routerLink]="['/manager/analytics', lot.lotId]"
+                   class="btn btn-sm btn-outline-dark">Analytics</a>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteLot(lot)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

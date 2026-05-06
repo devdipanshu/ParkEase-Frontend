@@ -1,0 +1,134 @@
+<div class="container py-4">
+
+  <!-- Loading state -->
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading vehicles...
+  </div>
+
+  <div *ngIf="!loading">
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <h2>My Vehicles</h2>
+      <button class="btn btn-dark-primary" (click)="showForm=!showForm; errorMsg=''">
+        {{showForm ? '✕ Cancel' : '+ Add Vehicle'}}
+      </button>
+    </div>
+
+    <div class="alert alert-success py-2 mb-3" *ngIf="successMsg">{{successMsg}}</div>
+    <div class="alert alert-danger py-2 mb-3"  *ngIf="errorMsg">{{errorMsg}}</div>
+
+    <!-- Add vehicle form -->
+    <div class="feature-card mb-4" *ngIf="showForm">
+      <h5>Add New Vehicle</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label>License Plate</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="newVehicle.licensePlate" placeholder="MH01AB1234">
+        </div>
+        <div class="col-md-4">
+          <label>Make</label>
+          <input type="text" class="form-control" [(ngModel)]="newVehicle.make" placeholder="Honda">
+        </div>
+        <div class="col-md-4">
+          <label>Model</label>
+          <input type="text" class="form-control" [(ngModel)]="newVehicle.model" placeholder="City">
+        </div>
+        <div class="col-md-4">
+          <label>Color</label>
+          <input type="text" class="form-control" [(ngModel)]="newVehicle.color" placeholder="White">
+        </div>
+        <div class="col-md-4">
+          <label>Vehicle Type</label>
+          <select class="form-select" [(ngModel)]="newVehicle.vehicleType">
+            <option value="CAR">Car</option>
+            <option value="MOTORCYCLE">Motorcycle</option>
+            <option value="TRUCK">Truck</option>
+            <option value="VAN">Van</option>
+            <option value="SUV">SUV</option>
+            <option value="BUS">Bus</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="newVehicle.isEV" id="isEV">
+            <label class="form-check-label" for="isEV">Electric Vehicle (EV)</label>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-dark-primary mt-3" (click)="addVehicle()">Save Vehicle</button>
+    </div>
+
+    <div *ngIf="vehicles.length===0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">directions_car</mat-icon>
+      <h4>No vehicles yet</h4>
+      <p>Add your first vehicle to get started.</p>
+    </div>
+
+    <!-- Vehicles list -->
+    <div *ngFor="let v of vehicles" class="feature-card mb-3">
+      <ng-container *ngIf="editingId !== v.vehicleId">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <strong style="font-size:1.05rem;">{{v.licensePlate}}</strong>
+            <span *ngIf="v.isEV" class="ms-2" style="color:#28a745; font-size:0.85rem; display:inline-flex; align-items:center; gap:2px;">
+              <mat-icon style="font-size:1rem; width:1rem; height:1rem;">bolt</mat-icon> EV
+            </span>
+            <p class="text-muted mb-1" style="font-size:0.88rem;">
+              {{v.make}} {{v.model}} &bull; {{v.color}} &bull; {{v.vehicleType}}
+            </p>
+            <p class="text-muted mb-0" style="font-size:0.8rem;" *ngIf="v.registeredAt">
+              Registered: {{v.registeredAt | slice:0:10}}
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-dark" (click)="startEdit(v)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteVehicle(v.vehicleId!)">Remove</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Inline edit form -->
+      <ng-container *ngIf="editingId === v.vehicleId">
+        <h6 style="font-weight:600; margin-bottom:12px;">Edit Vehicle — {{v.licensePlate}}</h6>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label>Make</label>
+            <input type="text" class="form-control" [(ngModel)]="editForm.make">
+          </div>
+          <div class="col-md-3">
+            <label>Model</label>
+            <input type="text" class="form-control" [(ngModel)]="editForm.model">
+          </div>
+          <div class="col-md-3">
+            <label>Color</label>
+            <input type="text" class="form-control" [(ngModel)]="editForm.color">
+          </div>
+          <div class="col-md-3">
+            <label>Vehicle Type</label>
+            <select class="form-select" [(ngModel)]="editForm.vehicleType">
+              <option value="CAR">Car</option>
+              <option value="MOTORCYCLE">Motorcycle</option>
+              <option value="TRUCK">Truck</option>
+              <option value="VAN">Van</option>
+              <option value="SUV">SUV</option>
+              <option value="BUS">Bus</option>
+            </select>
+          </div>
+          <div class="col-md-12 d-flex align-items-center">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.isEV" id="editEV{{v.vehicleId}}">
+              <label class="form-check-label" for="editEV{{v.vehicleId}}">Electric Vehicle (EV)</label>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-dark-primary btn-sm" (click)="saveEdit(v)">Save</button>
+          <button class="btn btn-outline-dark btn-sm" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</div>

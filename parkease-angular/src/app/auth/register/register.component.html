@@ -1,0 +1,68 @@
+<div class="min-vh-100 d-flex align-items-center
+            justify-content-center bg-white py-5">
+  <div style="width:100%; max-width:440px; padding:0 20px;">
+
+    <!-- Logo -->
+    <div class="text-center" style="margin-bottom:32px;">
+      <div style="font-size:2rem; font-weight:700; letter-spacing:-1px; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <mat-icon style="font-size:2rem; width:2rem; height:2rem;">local_parking</mat-icon> ParkEase
+      </div>
+      <p class="text-muted mt-2" style="font-size:0.9rem;">
+        Create your account
+      </p>
+    </div>
+
+    <!-- Messages -->
+    <div class="alert alert-success py-2 mb-3" *ngIf="successMsg">{{successMsg}}</div>
+    <div class="alert alert-danger py-2 mb-3"  *ngIf="errorMsg">{{errorMsg}}</div>
+
+    <!-- Form -->
+    <div class="mb-3">
+      <label>Full Name</label>
+      <input type="text" class="form-control"
+             [(ngModel)]="fullName" placeholder="John Doe">
+    </div>
+
+    <div class="mb-3">
+      <label>Email address</label>
+      <input type="email" class="form-control"
+             [(ngModel)]="email" placeholder="you@example.com">
+    </div>
+
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" class="form-control"
+             [(ngModel)]="password" placeholder="Min. 8 characters">
+    </div>
+
+    <div class="mb-3">
+      <label>Phone</label>
+      <input type="tel" class="form-control"
+             [(ngModel)]="phone" placeholder="+91 9999999999">
+    </div>
+
+    <div class="mb-4">
+      <label>Register as</label>
+      <select class="form-select" [(ngModel)]="role">
+        <option value="DRIVER">Driver</option>
+        <option value="MANAGER">Parking Manager</option>
+      </select>
+    </div>
+
+    <button class="btn btn-dark-primary w-100 py-2"
+            (click)="onRegister()" [disabled]="loading">
+      {{ loading ? 'Creating account...' : 'Create Account' }}
+    </button>
+
+    <div class="text-center mt-4">
+      <span style="font-size:0.85rem; color:#888;">
+        Already have an account?
+        <a routerLink="/login"
+           style="color:#000; font-weight:600; text-decoration:none;">
+          Sign in →
+        </a>
+      </span>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,80 @@
+<div class="container py-4">
+
+  <!-- Loading state -->
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading payments...
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error"
+       class="alert alert-danger d-flex align-items-center" role="alert">
+    <span>{{error}}</span>
+    <button class="btn btn-sm btn-outline-dark ms-auto" (click)="loadData()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !error">
+
+    <div class="page-header">
+      <h2>Payment History</h2>
+    </div>
+
+    <div class="alert alert-danger py-2 mb-3" *ngIf="downloadError">{{downloadError}}</div>
+
+    <div *ngIf="payments.length===0" class="empty-state">
+      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">add_card</mat-icon>
+      <h4>No payments yet</h4>
+      <p>Your payment history will appear here.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="payments.length>0">
+      <table class="clean-table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Booking</th>
+            <th>Amount</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of payments">
+            <td style="color:#888; font-size:0.82rem;">{{p.transactionId || '—'}}</td>
+            <td>#{{p.bookingId}}</td>
+            <td>Rs.{{p.amount}}</td>
+            <td>{{p.mode}}</td>
+            <td>
+              <span class="status-badge"
+                [class.badge-completed]="p.status==='PAID'"
+                [class.badge-cancelled]="p.status==='FAILED'"
+                [class.badge-reserved]="p.status==='PENDING'"
+                [class.badge-active]="p.status==='REFUNDED'">
+                {{p.status}}
+              </span>
+            </td>
+            <td style="font-size:0.85rem; color:#888;">
+              {{p.paidAt | date:'dd MMM yyyy, hh:mm a'}}
+            </td>
+            <td>
+              <button *ngIf="p.status==='PAID'"
+                      class="btn btn-sm btn-outline-dark"
+                      [disabled]="downloadingId === p.paymentId"
+                      (click)="downloadReceipt(p.paymentId!, p.transactionId || '')">
+                <span *ngIf="downloadingId !== p.paymentId" style="display:inline-flex; align-items:center; gap:4px;">
+                  <mat-icon style="font-size:1rem; width:1rem; height:1rem;">receipt</mat-icon> PDF
+                </span>
+                <span *ngIf="downloadingId === p.paymentId">
+                  <span class="spinner-border spinner-border-sm"></span>
+                </span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

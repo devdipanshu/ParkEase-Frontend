@@ -1,0 +1,120 @@
+<div class="container py-4" style="max-width:680px;">
+
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm text-dark"></div>
+    Loading profile...
+  </div>
+
+  <div *ngIf="!loading && error" class="alert alert-danger">{{error}}</div>
+
+  <div *ngIf="!loading && !error && profile">
+
+    <!-- Profile card -->
+    <div class="feature-card mb-4" *ngIf="!editMode">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h3 style="font-weight:700; margin:0;">{{profile.fullName}}</h3>
+          <span class="status-badge badge-active mt-1">{{profile.role}}</span>
+        </div>
+        <button class="btn btn-outline-dark btn-sm" (click)="startEdit()">Edit Profile</button>
+      </div>
+
+      <div class="alert alert-success py-2" *ngIf="saveSuccess">{{saveSuccess}}</div>
+      <div class="alert alert-success py-2" *ngIf="passwordSuccess">{{passwordSuccess}}</div>
+
+      <div class="row g-3" style="font-size:0.9rem;">
+        <div class="col-sm-6">
+          <div class="text-muted mb-1">Email</div>
+          <div>{{profile.email}}</div>
+        </div>
+        <div class="col-sm-6">
+          <div class="text-muted mb-1">Phone</div>
+          <div>{{profile.phone || '—'}}</div>
+        </div>
+        <div class="col-sm-6" *ngIf="profile.role === 'DRIVER'">
+          <div class="text-muted mb-1">Vehicle Plate</div>
+          <div>{{profile.vehiclePlate || '—'}}</div>
+        </div>
+        <div class="col-sm-6">
+          <div class="text-muted mb-1">Account Status</div>
+          <div>{{profile.isActive ? 'Active' : 'Inactive'}}</div>
+        </div>
+        <div class="col-sm-6" *ngIf="profile.createdAt">
+          <div class="text-muted mb-1">Member Since</div>
+          <div>{{profile.createdAt | slice:0:10}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit profile form -->
+    <div class="feature-card mb-4" *ngIf="editMode">
+      <h5 style="font-weight:600; margin-bottom:16px;">Edit Profile</h5>
+
+      <div class="alert alert-danger py-2" *ngIf="saveError">{{saveError}}</div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Full Name</label>
+          <input type="text" class="form-control" [(ngModel)]="editForm.fullName">
+        </div>
+        <div class="col-md-6">
+          <label>Email</label>
+          <input type="email" class="form-control" [(ngModel)]="editForm.email">
+        </div>
+        <div class="col-md-6">
+          <label>Phone</label>
+          <input type="tel" class="form-control" [(ngModel)]="editForm.phone" placeholder="+91 9999999999">
+        </div>
+        <div class="col-md-6" *ngIf="profile!.role === 'DRIVER'">
+          <label>Default Vehicle Plate</label>
+          <input type="text" class="form-control" [(ngModel)]="editForm.vehiclePlate" placeholder="MH01AB1234">
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-dark-primary" (click)="saveProfile()" [disabled]="saveLoading">
+          {{saveLoading ? 'Saving...' : 'Save Changes'}}
+        </button>
+        <button class="btn btn-outline-dark" (click)="editMode=false">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Change password -->
+    <div class="feature-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 style="font-weight:600; margin:0;">Password & Security</h5>
+        <button class="btn btn-outline-dark btn-sm"
+                (click)="showPasswordForm=!showPasswordForm; passwordError=''; passwordSuccess=''">
+          {{showPasswordForm ? 'Cancel' : 'Change Password'}}
+        </button>
+      </div>
+
+      <div *ngIf="showPasswordForm" class="mt-3">
+        <div class="alert alert-danger py-2 mb-3" *ngIf="passwordError">{{passwordError}}</div>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label>Current Password</label>
+            <input type="password" class="form-control"
+                   [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password">
+          </div>
+          <div class="col-md-6">
+            <label>New Password</label>
+            <input type="password" class="form-control"
+                   [(ngModel)]="passwordForm.newPassword" placeholder="Min 6 characters">
+          </div>
+          <div class="col-md-6">
+            <label>Confirm New Password</label>
+            <input type="password" class="form-control"
+                   [(ngModel)]="confirmPassword" placeholder="Repeat new password">
+          </div>
+        </div>
+
+        <button class="btn btn-dark-primary mt-3" (click)="changePassword()" [disabled]="passwordLoading">
+          {{passwordLoading ? 'Changing...' : 'Update Password'}}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
