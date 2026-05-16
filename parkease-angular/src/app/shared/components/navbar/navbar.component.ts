@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf, AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -12,12 +13,14 @@ import { NotificationService } from '../../../core/services/notification.service
   imports: [RouterLink, RouterLinkActive, NgIf, AsyncPipe, MatIconModule],
   templateUrl: './navbar.component.html'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   displayName: string | null = null;
   unreadCount: number = 0;
 
   loggedIn$!: ReturnType<AuthService['loggedIn$']['pipe']>;
   role$!: ReturnType<AuthService['role$']['pipe']>;
+
+  private subs = new Subscription();
 
   constructor(
     public authService: AuthService,
@@ -30,17 +33,21 @@ export class NavbarComponent implements OnInit {
     this.role$ = this.authService.role$;
     this.displayName = this.authService.getFullName() || this.authService.getEmail();
 
+    this.subs.add(
+      this.notificationService.unreadCount.subscribe(count => this.unreadCount = count)
+    );
+
     if (this.authService.isLoggedIn()) {
-      const userId = this.authService.getUserId();
-      this.notificationService.getUnreadCount(userId).subscribe({
-        next: (res) => this.unreadCount = res.unreadCount,
-        error: () => {}
-      });
+      this.notificationService.refreshCount(this.authService.getUserId());
     }
   }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
   }
 }

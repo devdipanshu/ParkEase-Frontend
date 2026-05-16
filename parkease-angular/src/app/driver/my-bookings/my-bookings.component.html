@@ -1,44 +1,44 @@
 <div class="container py-4">
 
-  <!-- Loading state -->
-  <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
-    Loading bookings...
-  </div>
+  <div class="loading-wrapper" *ngIf="loading">Loading bookings...</div>
 
-  <!-- Error state -->
-  <div *ngIf="!loading && error"
-       class="alert alert-danger d-flex align-items-center" role="alert">
+  <div *ngIf="!loading && error" class="alert alert-danger d-flex align-items-center" role="alert">
+    <mat-icon style="font-size:1.1rem;width:1.1rem;height:1.1rem;margin-right:8px;flex-shrink:0;">error_outline</mat-icon>
     <span>{{error}}</span>
-    <button class="btn btn-sm btn-outline-dark ms-auto" (click)="loadData()">Retry</button>
+    <button class="btn btn-outline-dark btn-sm ms-auto" (click)="loadData()">Retry</button>
   </div>
 
   <div *ngIf="!loading && !error">
 
-    <div class="page-header d-flex justify-content-between align-items-center">
+    <div class="page-header">
       <h2>My Bookings</h2>
+      <p>View and manage all your parking reservations.</p>
     </div>
 
-    <div class="alert alert-success py-2 mb-3" *ngIf="successMsg">{{successMsg}}</div>
+    <div class="alert alert-success mb-4" *ngIf="successMsg">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <mat-icon style="font-size:1rem;width:1rem;height:1rem;flex-shrink:0;">check_circle</mat-icon>
+        {{successMsg}}
+      </div>
+    </div>
 
-    <!-- Tabs -->
-    <div class="d-flex gap-2 mb-4 flex-wrap">
+    <!-- Tab pills -->
+    <div class="tab-bar mb-4">
       <button *ngFor="let tab of tabs"
-              class="btn btn-sm"
-              [class.btn-dark-primary]="activeTab===tab"
-              [class.btn-outline-dark]="activeTab!==tab"
-              (click)="activeTab=tab">
+              class="tab-pill"
+              [class.active]="activeTab === tab"
+              (click)="activeTab = tab">
         {{tab}}
       </button>
     </div>
 
-    <div *ngIf="filteredBookings.length===0" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">document_scanner</mat-icon>
+    <div *ngIf="filteredBookings.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">event_busy</mat-icon>
       <h4>No bookings found</h4>
       <p>No bookings match this filter.</p>
     </div>
 
-    <div class="table-responsive" *ngIf="filteredBookings.length>0">
+    <div class="table-responsive" *ngIf="filteredBookings.length > 0">
       <table class="clean-table">
         <thead>
           <tr>
@@ -54,41 +54,43 @@
         </thead>
         <tbody>
           <tr *ngFor="let b of filteredBookings">
-            <td style="color:#888;">{{b.bookingId}}</td>
-            <td>Spot {{b.spotId}}</td>
+            <td class="table-id">#{{b.bookingId}}</td>
+            <td><strong>Spot {{b.spotId}}</strong></td>
             <td>
               <span class="status-badge"
-                [class.badge-reserved]="b.bookingType==='PRE'"
-                [class.badge-active]="b.bookingType==='WALK_IN'">
+                [class.badge-reserved]="b.bookingType === 'PRE'"
+                [class.badge-active]="b.bookingType === 'WALK_IN'">
                 {{b.bookingType === 'PRE' ? 'Pre-booked' : 'Walk-In'}}
               </span>
             </td>
-            <td style="font-size:0.85rem;">{{b.startTime | date:'dd MMM, hh:mm a'}}</td>
-            <td style="font-size:0.85rem;">{{b.endTime | date:'dd MMM, hh:mm a'}}</td>
+            <td class="table-meta">{{b.startTime | date:'dd MMM, hh:mm a'}}</td>
+            <td class="table-meta">{{b.endTime | date:'dd MMM, hh:mm a'}}</td>
             <td>
               <span class="status-badge"
-                [class.badge-reserved]="b.status==='RESERVED'"
-                [class.badge-active]="b.status==='ACTIVE'"
-                [class.badge-completed]="b.status==='COMPLETED'"
-                [class.badge-cancelled]="b.status==='CANCELLED'">
+                [class.badge-reserved]="b.status === 'RESERVED'"
+                [class.badge-active]="b.status === 'ACTIVE'"
+                [class.badge-completed]="b.status === 'COMPLETED'"
+                [class.badge-cancelled]="b.status === 'CANCELLED'">
                 {{b.status}}
               </span>
             </td>
-            <td>{{b.totalAmount ? 'Rs.'+b.totalAmount : '—'}}</td>
+            <td style="font-weight:600;">{{b.totalAmount ? 'Rs. ' + b.totalAmount : '—'}}</td>
             <td>
               <div class="d-flex flex-wrap gap-1">
-                <button *ngIf="b.status==='RESERVED'" class="btn btn-sm btn-dark-primary"
-                        (click)="checkIn(b.bookingId!)">Check-In</button>
-                <button *ngIf="b.status==='ACTIVE'" class="btn btn-sm btn-dark-primary"
+                <button *ngIf="b.status === 'RESERVED'" class="btn btn-sm btn-dark-primary"
+                        (click)="checkIn(b.bookingId!)">
+                  Check-In
+                </button>
+                <button *ngIf="b.status === 'ACTIVE'" class="btn btn-sm btn-dark-primary"
                         [disabled]="checkingPayment"
                         (click)="checkOut(b.bookingId!)">
                   <span *ngIf="checkingPayment" class="spinner-border spinner-border-sm me-1"></span>
                   Check-Out
                 </button>
-                <button *ngIf="b.status==='RESERVED' || b.status==='ACTIVE'"
+                <button *ngIf="b.status === 'RESERVED' || b.status === 'ACTIVE'"
                         class="btn btn-sm btn-outline-dark"
                         (click)="openExtendModal(b)">Extend</button>
-                <button *ngIf="b.status==='RESERVED' || b.status==='ACTIVE'"
+                <button *ngIf="b.status === 'RESERVED' || b.status === 'ACTIVE'"
                         class="btn btn-sm btn-outline-danger"
                         (click)="cancel(b.bookingId!)">Cancel</button>
               </div>
@@ -101,35 +103,40 @@
   </div>
 
   <!-- Extend booking modal -->
-  <div class="modal-overlay" *ngIf="showExtendModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1050;display:flex;align-items:center;justify-content:center;">
-    <div class="feature-card" style="width:100%;max-width:440px;">
-      <h5 style="font-weight:600; margin-bottom:16px;">Extend Booking</h5>
-      <div class="mb-3">
+  <div class="modal-overlay" *ngIf="showExtendModal">
+    <div class="modal-card">
+      <div class="modal-title">Extend Booking</div>
+      <div class="modal-subtitle">Choose a new end time for your reservation.</div>
+      <div class="form-group">
         <label>New End Time</label>
         <input type="datetime-local" class="form-control" [(ngModel)]="newEndTime">
       </div>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 mt-2">
         <button class="btn btn-dark-primary" (click)="submitExtend()" [disabled]="extendSubmitting">
+          <span *ngIf="extendSubmitting" class="spinner-border spinner-border-sm me-1"></span>
           {{extendSubmitting ? 'Extending...' : 'Confirm Extension'}}
         </button>
-        <button class="btn btn-outline-dark" (click)="showExtendModal=false">Cancel</button>
+        <button class="btn btn-outline-dark" (click)="showExtendModal = false">Cancel</button>
       </div>
     </div>
   </div>
 
   <!-- Payment modal (after checkout) -->
-  <div class="modal-overlay" *ngIf="showPaymentModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1050;display:flex;align-items:center;justify-content:center;">
-    <div class="feature-card" style="width:100%;max-width:440px;">
-      <h5 style="font-weight:600; margin-bottom:4px;">Process Payment</h5>
-      <p class="text-muted mb-3" style="font-size:0.88rem;">Booking #{{paymentBooking?.bookingId}}</p>
+  <div class="modal-overlay" *ngIf="showPaymentModal">
+    <div class="modal-card">
+      <div class="modal-title">Process Payment</div>
+      <div class="modal-subtitle">Booking #{{paymentBooking?.bookingId}}</div>
 
-      <div class="alert alert-info py-2 mb-3">
-        <strong>Amount Due:</strong> Rs.{{paymentBooking?.totalAmount}}
+      <div class="alert alert-info mb-3">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <mat-icon style="font-size:1rem;width:1rem;height:1rem;flex-shrink:0;">payments</mat-icon>
+          <span><strong>Amount Due:</strong> Rs. {{paymentBooking?.totalAmount}}</span>
+        </div>
       </div>
 
-      <div class="alert alert-danger py-2 mb-3" *ngIf="paymentError">{{paymentError}}</div>
+      <div class="alert alert-danger mb-3" *ngIf="paymentError">{{paymentError}}</div>
 
-      <div class="mb-3">
+      <div class="form-group">
         <label>Payment Mode</label>
         <select class="form-select" [(ngModel)]="paymentMode">
           <option value="CARD">Card</option>
@@ -139,9 +146,10 @@
         </select>
       </div>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 mt-2">
         <button class="btn btn-dark-primary" (click)="submitPayment()" [disabled]="paymentSubmitting">
-          {{paymentSubmitting ? 'Processing...' : 'Pay Rs.' + paymentBooking?.totalAmount}}
+          <span *ngIf="paymentSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+          {{paymentSubmitting ? 'Processing...' : 'Pay Rs. ' + paymentBooking?.totalAmount}}
         </button>
         <button class="btn btn-outline-dark" (click)="closePaymentModal()">Skip</button>
       </div>

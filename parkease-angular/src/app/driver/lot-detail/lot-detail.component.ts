@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,10 +9,14 @@ import { BookingService } from '../../core/services/booking.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { VehicleService } from '../../core/services/vehicle.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { ParkingLot } from '../../shared/models/parking-lot.model';
 import { Spot } from '../../shared/models/spot.model';
 import { Booking } from '../../shared/models/booking.model';
 import { Vehicle } from '../../shared/models/vehicle.model';
+import { environment } from '../../../environments/environment';
+
+declare var Razorpay: any;
 
 @Component({
   selector: 'app-lot-detail',
@@ -47,7 +51,9 @@ export class LotDetailComponent implements OnInit {
     private bookingService: BookingService,
     private paymentService: PaymentService,
     private vehicleService: VehicleService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -125,6 +131,7 @@ export class LotDetailComponent implements OnInit {
       next: (b) => {
         this.createdBooking = b;
         this.submitting = false;
+        setTimeout(() => this.notificationService.refreshCount(this.authService.getUserId()), 2000);
         if (this.booking.bookingType === 'PRE') {
           this.estimatedAmount = this.calcAmount();
           this.showBookingForm = false;
@@ -140,38 +147,69 @@ export class LotDetailComponent implements OnInit {
     });
   }
 
-  submitPayment() {
+  openRazorpay() {
     if (!this.createdBooking || !this.lot) return;
-    this.paymentSubmitting = true;
     this.paymentError = '';
 
     const amount = this.createdBooking.totalAmount || this.estimatedAmount;
     const bookingId = this.createdBooking.bookingId!;
 
-    this.paymentService.processPayment({
-      bookingId,
-      userId: this.authService.getUserId(),
-      lotId: this.lot.lotId!,
-      amount,
-      mode: this.paymentMode
-    }).subscribe({
-      next: () => this.router.navigate(['/driver/my-bookings']),
-      error: () => {
-        // Payment failed — cancel the booking so the spot is freed
+    const options = {
+      key: environment.razorpayKey,
+      amount: Math.round(amount * 100), // paise
+      currency: 'INR',
+      name: 'ParkEase',
+      description: `Booking #${bookingId} — Spot ${this.selectedSpot?.spotNumber}`,
+      image: '/favicon.ico',
+      handler: (response: any) => {
+        this.ngZone.run(() => {
+          this.paymentSubmitting = true;
+          this.paymentService.processPayment({
+            bookingId,
+            userId: this.authService.getUserId(),
+            lotId: this.lot!.lotId!,
+            amount,
+            mode: 'RAZORPAY',
+            transactionId: response.razorpay_payment_id
+          }).subscribe({
+            next: () => this.router.navigate(['/driver/my-bookings']),
+            error: () => {
+              this.paymentError = 'Payment received but confirmation failed. Contact support with ID: ' + response.razorpay_payment_id;
+              this.paymentSubmitting = false;
+            }
+          });
+        });
+      },
+      prefill: {
+        name: this.authService.getFullName() || '',
+        email: this.authService.getEmail() || ''
+      },
+      theme: { color: '#3b82f6' },
+      modal: {
+        ondismiss: () => {
+          this.ngZone.run(() => {
+            this.paymentError = 'Payment was cancelled. Your booking is reserved — complete payment to confirm your spot.';
+          });
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', (response: any) => {
+      this.ngZone.run(() => {
+        this.paymentError = 'Payment failed: ' + (response.error?.description || 'Unknown error');
         this.bookingService.cancelBooking(bookingId).subscribe({
           next: () => {
             this.showPaymentForm = false;
             this.createdBooking = null;
+            this.errorMsg = 'Payment failed. Booking cancelled — spot is now free. Please try again.';
             this.paymentError = '';
-            this.errorMsg = 'Payment failed. Your booking has been cancelled and the spot is now free. Please try again.';
           },
-          error: () => {
-            this.paymentError = 'Payment failed. Please try again or cancel the booking manually from My Bookings.';
-          }
+          error: () => {}
         });
-        this.paymentSubmitting = false;
-      }
+      });
     });
+    rzp.open();
   }
 
   cancelPayment() {

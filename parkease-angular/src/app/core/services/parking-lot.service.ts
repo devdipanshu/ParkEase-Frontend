@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ParkingLot } from '../../shared/models/parking-lot.model';
 
@@ -19,9 +20,17 @@ export class ParkingLotService {
       `${this.apiUrl}/api/lots/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
   }
 
+  getLotsByCity(city: string): Observable<ParkingLot[]> {
+    return this.getAllApprovedLots().pipe(
+      map(lots => lots.filter(l =>
+        l.city?.toLowerCase().includes(city.toLowerCase().trim())
+      ))
+    );
+  }
+
   getPendingLots(): Observable<ParkingLot[]> {
-  return this.http.get<ParkingLot[]>(`${this.apiUrl}/api/lots/pending`);
-}
+    return this.http.get<ParkingLot[]>(`${this.apiUrl}/api/lots/pending`);
+  }
 
   getLotById(id: number): Observable<ParkingLot> {
     return this.http.get<ParkingLot>(`${this.apiUrl}/api/lots/${id}`);

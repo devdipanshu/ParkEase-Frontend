@@ -2,7 +2,7 @@
 
   <!-- Loading state -->
   <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
+    <div class="spinner-border spinner-border-sm"></div>
     Loading revenue data...
   </div>
 
@@ -19,7 +19,7 @@
     </div>
 
     <div *ngIf="lotRevenues.length===0" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">payments</mat-icon>
+      <mat-icon class="empty-icon">payments</mat-icon>
       <h4>No revenue data</h4>
       <p>Revenue will appear once your lots have bookings.</p>
     </div>
@@ -29,7 +29,7 @@
         <div class="col-md-4" *ngFor="let lr of lotRevenues">
           <div class="data-card">
             <div class="data-card-label mb-1">{{lr.lot.name}}</div>
-            <div style="font-size:0.78rem; color:#aaa; margin-bottom:8px;">{{lr.lot.city}}</div>
+            <div class="table-meta" style="font-size:0.78rem; margin-bottom:8px;">{{lr.lot.city}}</div>
             <div class="data-card-number">Rs.{{lr.revenue | number:'1.2-2'}}</div>
             <div class="data-card-label">Total Revenue</div>
           </div>
@@ -38,7 +38,7 @@
 
       <div class="data-card text-center">
         <div class="data-card-label mb-2">Total Revenue Across All Lots</div>
-        <div style="font-size:2.8rem; font-weight:700; color:#000; letter-spacing:-1px;">
+        <div style="font-family:var(--font-display);font-size:2.8rem;font-weight:800;letter-spacing:-2px;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
           Rs.{{totalRevenue | number:'1.2-2'}}
         </div>
       </div>

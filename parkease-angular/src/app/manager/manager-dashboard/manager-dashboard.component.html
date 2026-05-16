@@ -1,82 +1,123 @@
 <div class="container py-4">
 
-  <!-- Loading state -->
-  <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
-    Loading your lots...
-  </div>
+  <div class="loading-wrapper" *ngIf="loading">Loading your lots...</div>
 
-  <!-- Error state -->
-  <div *ngIf="!loading && error"
-       class="alert alert-danger d-flex align-items-center" role="alert">
+  <div *ngIf="!loading && error" class="alert alert-danger d-flex align-items-center" role="alert">
+    <mat-icon style="font-size:1.1rem;width:1.1rem;height:1.1rem;margin-right:8px;flex-shrink:0;">error_outline</mat-icon>
     <span>{{error}}</span>
-    <button class="btn btn-sm btn-outline-dark ms-auto" (click)="loadData()">Retry</button>
+    <button class="btn btn-outline-dark btn-sm ms-auto" (click)="loadData()">Retry</button>
   </div>
 
   <div *ngIf="!loading && !error">
 
     <div class="page-header d-flex justify-content-between align-items-center">
-      <h2>Manager Dashboard</h2>
+      <div>
+        <h2>Manager Dashboard</h2>
+        <p>Manage your parking lots and monitor performance.</p>
+      </div>
       <div class="d-flex gap-2 align-items-center">
-        <button class="btn btn-sm btn-outline-dark" (click)="loadData()" title="Refresh">
-          <mat-icon style="font-size:1rem; width:1rem; height:1rem; vertical-align:middle;">refresh</mat-icon>
+        <button class="btn btn-outline-dark btn-sm" (click)="loadData()" title="Refresh">
+          <mat-icon style="font-size:1rem;width:1rem;height:1rem;">refresh</mat-icon>
         </button>
-        <a routerLink="/manager/create-lot" class="btn btn-dark-primary">+ Add New Lot</a>
+        <a routerLink="/manager/create-lot" class="btn btn-dark-primary">
+          <mat-icon style="font-size:1rem;width:1rem;height:1rem;">add</mat-icon>
+          Add New Lot
+        </a>
       </div>
     </div>
 
-    <div class="alert alert-success py-2 mb-3" *ngIf="successMsg">{{successMsg}}</div>
+    <div class="alert alert-success mb-4" *ngIf="successMsg">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <mat-icon style="font-size:1rem;width:1rem;height:1rem;flex-shrink:0;">check_circle</mat-icon>
+        {{successMsg}}
+      </div>
+    </div>
 
-    <div *ngIf="lots.length===0" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">local_parking</mat-icon>
+    <div *ngIf="lots.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">local_parking</mat-icon>
       <h4>No parking lots yet</h4>
-      <p>Add your first lot to get started.</p>
+      <p>Add your first lot to start accepting bookings.</p>
       <a routerLink="/manager/create-lot" class="btn btn-dark-primary btn-sm mt-2">
+        <mat-icon style="font-size:1rem;width:1rem;height:1rem;">add</mat-icon>
         Add Your First Lot
       </a>
     </div>
 
-    <div class="row g-3" *ngIf="lots.length>0">
+    <div class="row g-3" *ngIf="lots.length > 0">
       <div class="col-md-6" *ngFor="let lot of lots">
-        <div class="feature-card h-100">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="mb-0">{{lot.name}}</h5>
+        <div class="feature-card h-100" style="padding:24px;">
+
+          <!-- Lot header -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h5 style="font-size:1.05rem;font-weight:700;margin-bottom:4px;letter-spacing:-0.02em;">{{lot.name}}</h5>
+              <p style="font-size:0.82rem;color:var(--muted-foreground);margin:0;display:flex;align-items:center;gap:4px;">
+                <mat-icon style="font-size:0.9rem;width:0.9rem;height:0.9rem;">place</mat-icon>
+                {{lot.address}}, {{lot.city}}
+              </p>
+            </div>
             <span class="status-badge"
               [class.badge-approved]="lot.isApproved"
               [class.badge-pending]="!lot.isApproved">
-              {{lot.isApproved ? 'Approved' : 'Pending Approval'}}
+              {{lot.isApproved ? 'Approved' : 'Pending'}}
             </span>
           </div>
-          <p class="text-muted mb-3" style="font-size:0.83rem;">{{lot.address}}, {{lot.city}}</p>
 
-          <div class="row text-center mb-3">
-            <div class="col-4">
-              <div style="font-weight:700; font-size:1.3rem;">{{lot.availableSpots}}</div>
-              <div style="font-size:0.78rem; color:#888;">Available</div>
+          <!-- Stats row -->
+          <div class="row text-center mb-4 g-0"
+               style="background:var(--muted);border-radius:10px;padding:12px 0;">
+            <div class="col-4" style="border-right:1px solid var(--border);">
+              <div style="font-weight:800;font-size:1.4rem;color:var(--primary);letter-spacing:-0.03em;">
+                {{lot.availableSpots}}
+              </div>
+              <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:2px;">
+                Available
+              </div>
+            </div>
+            <div class="col-4" style="border-right:1px solid var(--border);">
+              <div style="font-weight:800;font-size:1.4rem;color:var(--foreground);letter-spacing:-0.03em;">
+                {{lot.totalSpots}}
+              </div>
+              <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:2px;">
+                Total
+              </div>
             </div>
             <div class="col-4">
-              <div style="font-weight:700; font-size:1.3rem;">{{lot.totalSpots}}</div>
-              <div style="font-size:0.78rem; color:#888;">Total</div>
-            </div>
-            <div class="col-4">
-              <mat-icon [style.color]="lot.isOpen ? '#28a745' : '#dc3545'">
-                {{lot.isOpen ? 'check_circle' : 'cancel'}}
-              </mat-icon>
-              <div style="font-size:0.78rem; color:#888;">{{lot.isOpen ? 'Open' : 'Closed'}}</div>
+              <div style="font-size:1.4rem;line-height:1;margin-bottom:2px;">
+                <mat-icon [style.color]="lot.isOpen ? 'var(--success)' : 'var(--muted-foreground)'"
+                          style="font-size:1.4rem;width:1.4rem;height:1.4rem;">
+                  {{lot.isOpen ? 'check_circle' : 'cancel'}}
+                </mat-icon>
+              </div>
+              <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">
+                {{lot.isOpen ? 'Open' : 'Closed'}}
+              </div>
             </div>
           </div>
 
+          <!-- Actions -->
           <div class="d-flex gap-2 flex-wrap">
             <a [routerLink]="['/manager/lots', lot.lotId, 'spots']"
-               class="btn btn-sm btn-dark-primary">Manage Spots</a>
+               class="btn btn-dark-primary btn-sm">
+              <mat-icon style="font-size:0.9rem;width:0.9rem;height:0.9rem;">grid_view</mat-icon>
+              Manage Spots
+            </a>
             <a [routerLink]="['/manager/analytics', lot.lotId]"
-               class="btn btn-sm btn-outline-dark">Analytics</a>
-            <button class="btn btn-sm btn-outline-dark" (click)="toggleOpen(lot.lotId!)">
+               class="btn btn-outline-dark btn-sm">
+              <mat-icon style="font-size:0.9rem;width:0.9rem;height:0.9rem;">bar_chart</mat-icon>
+              Analytics
+            </a>
+            <button class="btn btn-outline-dark btn-sm" (click)="toggleOpen(lot.lotId!)">
               {{lot.isOpen ? 'Close Lot' : 'Open Lot'}}
             </button>
-            <button class="btn btn-sm btn-outline-dark" (click)="startEdit(lot)">Edit</button>
-            <button class="btn btn-sm btn-outline-danger" (click)="deleteLot(lot)">Delete</button>
+            <button class="btn btn-outline-dark btn-sm" (click)="startEdit(lot)">
+              <mat-icon style="font-size:0.9rem;width:0.9rem;height:0.9rem;">edit</mat-icon>
+            </button>
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteLot(lot)">
+              <mat-icon style="font-size:0.9rem;width:0.9rem;height:0.9rem;">delete</mat-icon>
+            </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -84,10 +125,10 @@
   </div>
 
   <!-- Edit Lot Modal -->
-  <div class="modal-overlay" *ngIf="showEditModal"
-       style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1050;display:flex;align-items:center;justify-content:center;overflow-y:auto;">
-    <div class="feature-card" style="width:100%;max-width:600px;margin:20px;">
-      <h5 style="font-weight:600; margin-bottom:16px;">Edit Lot</h5>
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="$event.target === $event.currentTarget && cancelEdit()">
+    <div class="modal-card">
+      <div class="modal-title">Edit Parking Lot</div>
+      <div class="modal-subtitle">Update details for this lot.</div>
 
       <div class="row g-3">
         <div class="col-md-6">
@@ -118,7 +159,7 @@
           <label>Close Time</label>
           <input type="time" class="form-control" [(ngModel)]="editForm.closeTime">
         </div>
-        <div class="col-md-4 d-flex align-items-end">
+        <div class="col-md-4 d-flex align-items-end pb-1">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.isOpen" id="editIsOpen">
             <label class="form-check-label" for="editIsOpen">Currently Open</label>
@@ -126,8 +167,9 @@
         </div>
       </div>
 
-      <div class="d-flex gap-2 mt-3">
+      <div class="d-flex gap-2 mt-4">
         <button class="btn btn-dark-primary" (click)="saveEdit()" [disabled]="editSubmitting">
+          <span *ngIf="editSubmitting" class="spinner-border spinner-border-sm me-1"></span>
           {{editSubmitting ? 'Saving...' : 'Save Changes'}}
         </button>
         <button class="btn btn-outline-dark" (click)="cancelEdit()">Cancel</button>

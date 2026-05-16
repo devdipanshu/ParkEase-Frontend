@@ -39,7 +39,11 @@ export class MyVehiclesComponent implements OnInit {
 
   loadVehicles() {
     this.vehicleService.getMyVehicles(this.authService.getUserId()).subscribe({
-      next: (data) => { this.vehicles = data; this.loading = false; },
+      next: (data) => {
+        this.vehicles = data;
+        this.loading = false;
+        if (data.length === 0) this.showForm = true;
+      },
       error: () => { this.loading = false; }
     });
   }

@@ -2,7 +2,7 @@
 
   <!-- Loading state -->
   <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
+    <div class="spinner-border spinner-border-sm"></div>
     Loading analytics...
   </div>
 
@@ -29,7 +29,7 @@
     </div>
 
     <div *ngIf="!summary" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">bar_chart</mat-icon>
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
       <h4>Analytics data unavailable</h4>
       <p>Data will appear once the platform has activity.</p>
     </div>
@@ -93,7 +93,7 @@
             </tr>
             <tr>
               <td style="font-weight:500;">Generated At</td>
-              <td style="color:#888; font-size:0.85rem;">{{summary.generatedAt}}</td>
+              <td class="table-meta" style="font-size:0.85rem;">{{summary.generatedAt}}</td>
             </tr>
           </tbody>
         </table>

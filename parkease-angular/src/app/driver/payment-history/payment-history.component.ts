@@ -23,7 +23,11 @@ export class PaymentHistoryComponent implements OnInit {
     private authService: AuthService
   ) {}
 
-  ngOnInit() { this.loadData(); }
+  ngOnInit() {
+    this.loadData();
+    // Retry once after 3s — handles gateway cache miss after service restart
+    setTimeout(() => { if (this.error) this.loadData(); }, 3000);
+  }
 
   loadData() {
     this.loading = true;

@@ -1,79 +1,123 @@
 <div class="container py-4">
 
-  <!-- Loading state -->
-  <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
-    Loading analytics...
-  </div>
+  <div class="loading-wrapper" *ngIf="loading">Loading analytics...</div>
 
-  <!-- Error state -->
-  <div *ngIf="!loading && error"
-       class="alert alert-danger d-flex align-items-center" role="alert">
+  <div *ngIf="!loading && error" class="alert alert-danger d-flex align-items-center" role="alert">
+    <mat-icon style="font-size:1.1rem;width:1.1rem;height:1.1rem;margin-right:8px;flex-shrink:0;">error_outline</mat-icon>
     <span>{{error}}</span>
   </div>
 
   <div *ngIf="!loading && !error">
 
     <div class="page-header d-flex justify-content-between align-items-center">
-      <h2>Analytics — Lot #{{lotId}}</h2>
+      <div>
+        <h2>Analytics — Lot #{{lotId}}</h2>
+        <p>Occupancy trends and peak hour breakdown.</p>
+      </div>
       <div class="d-flex align-items-center gap-2">
-        <small *ngIf="lastUpdated" class="text-muted">Updated {{lastUpdated | date:'hh:mm:ss a'}}</small>
-        <button class="btn btn-sm btn-outline-dark" (click)="loadData()" title="Refresh">
-          <mat-icon style="font-size:1rem; width:1rem; height:1rem; vertical-align:middle;">refresh</mat-icon>
+        <small *ngIf="lastUpdated" class="table-meta">
+          Updated {{lastUpdated | date:'hh:mm:ss a'}}
+        </small>
+        <button class="btn btn-outline-dark btn-sm" (click)="loadData()" title="Refresh">
+          <mat-icon style="font-size:1rem;width:1rem;height:1rem;">refresh</mat-icon>
         </button>
       </div>
     </div>
 
     <!-- Occupancy card -->
     <div class="feature-card mb-4" *ngIf="occupancy">
-      <h5>Current Occupancy</h5>
-      <div class="d-flex justify-content-between mb-2">
-        <span style="font-size:0.88rem;">Occupancy Rate</span>
-        <span style="font-weight:600;">{{occupancyPercent}}%</span>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+        <div class="icon-box" style="margin-bottom:0;flex-shrink:0;">
+          <mat-icon style="font-size:1.35rem;width:1.35rem;height:1.35rem;">donut_large</mat-icon>
+        </div>
+        <div>
+          <div style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;">Current Occupancy</div>
+          <div style="font-size:0.84rem;color:var(--muted-foreground);">Live utilisation data for this lot</div>
+        </div>
       </div>
-      <div class="progress mb-3" style="height:10px; border-radius:5px; background:#f0f0f0;">
-        <div class="progress-bar" style="background:#000; border-radius:5px;"
+
+      <!-- Progress bar -->
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span style="font-size:0.84rem;color:var(--muted-foreground);">Occupancy Rate</span>
+        <span style="font-weight:800;font-size:1rem;color:var(--primary);">{{occupancyPercent}}%</span>
+      </div>
+      <div class="progress mb-4" style="height:10px;border-radius:999px;">
+        <div class="progress-bar" style="border-radius:999px;"
              [style.width]="occupancyPercent + '%'">
         </div>
       </div>
-      <div class="row text-center">
+
+      <div class="row g-3">
         <div class="col-4">
-          <div style="font-weight:700; font-size:1.2rem;">{{occupancy.totalLogs}}</div>
-          <div style="font-size:0.78rem; color:#888;">Total Logs</div>
+          <div style="background:var(--muted);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--foreground);letter-spacing:-0.03em;">
+              {{occupancy.totalLogs}}
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:4px;">
+              Total Logs
+            </div>
+          </div>
         </div>
         <div class="col-4">
-          <div style="font-weight:700; font-size:1.2rem;">
-            {{occupancy.averageOccupancy | number:'1.1-1'}}%
+          <div style="background:var(--primary-light);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--primary);letter-spacing:-0.03em;">
+              {{occupancy.averageOccupancy | number:'1.1-1'}}%
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:4px;">
+              Avg Occupancy
+            </div>
           </div>
-          <div style="font-size:0.78rem; color:#888;">Avg Occupancy</div>
         </div>
         <div class="col-4">
-          <div style="font-weight:700; font-size:1.2rem;">
-            {{occupancy.currentOccupancy | number:'1.1-1'}}%
+          <div style="background:var(--success-light);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:800;color:var(--success);letter-spacing:-0.03em;">
+              {{occupancy.currentOccupancy | number:'1.1-1'}}%
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.07em;font-weight:600;margin-top:4px;">
+              Current
+            </div>
           </div>
-          <div style="font-size:0.78rem; color:#888;">Current</div>
         </div>
       </div>
     </div>
 
     <!-- Peak hours table -->
-    <div *ngIf="peakHours.length>0">
-      <h5 style="font-weight:600; margin-bottom:16px;">Peak Hours</h5>
+    <div *ngIf="peakHours.length > 0">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="section-label" style="margin-bottom:0;">Peak Hours</div>
+        <span class="status-badge badge-reserved">Today</span>
+      </div>
       <div class="table-responsive">
         <table class="clean-table">
           <thead>
-            <tr><th>Hour</th><th>Avg Occupancy</th><th>Log Count</th><th>Peak?</th></tr>
+            <tr>
+              <th>Hour</th>
+              <th>Avg Occupancy</th>
+              <th>Log Count</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let h of peakHours"
-                [style.background]="h.isPeak ? '#fafafa' : ''">
-              <td>{{h.hourLabel}}</td>
-              <td>{{h.avgOccupancy | number:'1.1-1'}}%</td>
+            <tr *ngFor="let h of peakHours">
+              <td style="font-weight:600;">{{h.hourLabel}}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="flex:1;height:6px;background:var(--muted);border-radius:999px;overflow:hidden;">
+                    <div style="height:100%;border-radius:999px;background:var(--gradient-primary);"
+                         [style.width]="h.avgOccupancy + '%'"></div>
+                  </div>
+                  <span style="font-weight:700;min-width:48px;text-align:right;">
+                    {{h.avgOccupancy | number:'1.1-1'}}%
+                  </span>
+                </div>
+              </td>
               <td>{{h.logCount}}</td>
               <td>
-                <span *ngIf="h.isPeak" class="status-badge badge-reserved" style="display:inline-flex; align-items:center; gap:2px;">
-                  <mat-icon style="font-size:1rem; width:1rem; height:1rem;">local_fire_department</mat-icon> Peak
+                <span *ngIf="h.isPeak" class="status-badge badge-reserved">
+                  <mat-icon style="font-size:0.8rem;width:0.8rem;height:0.8rem;">local_fire_department</mat-icon>
+                  Peak
                 </span>
+                <span *ngIf="!h.isPeak" class="table-meta">—</span>
               </td>
             </tr>
           </tbody>
@@ -81,10 +125,10 @@
       </div>
     </div>
 
-    <div *ngIf="!occupancy && peakHours.length===0" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">bar_chart</mat-icon>
-      <h4>No analytics data</h4>
-      <p>Data will appear once your lot has activity.</p>
+    <div *ngIf="!occupancy && peakHours.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
+      <h4>No analytics data yet</h4>
+      <p>Data will appear once your lot has booking activity.</p>
     </div>
 
   </div>

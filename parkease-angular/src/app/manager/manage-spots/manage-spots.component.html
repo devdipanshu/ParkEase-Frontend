@@ -51,13 +51,13 @@
 
   <!-- Loading state -->
   <div class="loading-wrapper" *ngIf="loading">
-    <div class="spinner-border spinner-border-sm text-dark"></div>
+    <div class="spinner-border spinner-border-sm"></div>
     Loading spots...
   </div>
 
   <div *ngIf="!loading">
     <div *ngIf="spots.length===0" class="empty-state">
-      <mat-icon class="empty-icon" style="font-size:3rem; width:3rem; height:3rem; color:#ccc;">local_parking</mat-icon>
+      <mat-icon class="empty-icon">local_parking</mat-icon>
       <h4>No spots yet</h4>
       <p>Add spots using the form above.</p>
     </div>
@@ -77,7 +77,7 @@
               <td>{{s.vehicleType}}</td>
               <td>Rs.{{s.pricePerHour}}</td>
               <td>
-                <span *ngIf="s.isEVCharging" style="color:#28a745; display:flex; align-items:center; gap:2px;">
+                <span *ngIf="s.isEVCharging" style="color:var(--success); display:flex; align-items:center; gap:2px;">
                   <mat-icon style="font-size:1rem; width:1rem; height:1rem;">bolt</mat-icon> Yes
                 </span>
                 <span *ngIf="!s.isEVCharging">—</span>
@@ -100,7 +100,7 @@
               </td>
             </tr>
             <!-- Inline edit row -->
-            <tr *ngIf="editingSpotId === s.spotId" style="background:#f8f8f8;">
+            <tr *ngIf="editingSpotId === s.spotId" style="background:var(--muted);">
               <td>
                 <input type="text" class="form-control form-control-sm"
                        [(ngModel)]="editSpotForm.spotNumber" style="width:80px;">

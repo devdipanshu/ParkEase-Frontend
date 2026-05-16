@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { NgIf, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [NgIf, SlicePipe, FormsModule],
+  imports: [NgIf, SlicePipe, FormsModule, MatIconModule],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {

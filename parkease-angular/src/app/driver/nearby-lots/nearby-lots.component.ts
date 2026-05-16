@@ -15,6 +15,7 @@ export class NearbyLotsComponent implements OnInit {
   lots: ParkingLot[] = [];
   loading = true;
   errorMsg = '';
+  searchCity = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -22,9 +23,12 @@ export class NearbyLotsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const lat    = Number(this.route.snapshot.queryParamMap.get('lat'));
-    const lng    = Number(this.route.snapshot.queryParamMap.get('lng'));
-    const radius = Number(this.route.snapshot.queryParamMap.get('radius') || 5);
+    const params = this.route.snapshot.queryParamMap;
+    this.searchCity = params.get('city') || '';
+
+    const lat    = Number(params.get('lat'));
+    const lng    = Number(params.get('lng'));
+    const radius = Number(params.get('radius') || 5);
 
     this.lotService.getNearbyLots(lat, lng, radius).subscribe({
       next: (data) => { this.lots = data; this.loading = false; },

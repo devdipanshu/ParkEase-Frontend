@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { BookingService } from '../../core/services/booking.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Booking } from '../../shared/models/booking.model';
 
 @Component({
@@ -40,7 +41,8 @@ export class MyBookingsComponent implements OnInit {
   constructor(
     private bookingService: BookingService,
     private paymentService: PaymentService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() { this.loadData(); }
@@ -69,7 +71,11 @@ export class MyBookingsComponent implements OnInit {
   checkIn(id: number) {
     this.successMsg = '';
     this.bookingService.checkIn(id).subscribe({
-      next: () => { this.successMsg = 'Checked in successfully!'; this.loadData(); },
+      next: () => {
+        this.successMsg = 'Checked in successfully!';
+        this.loadData();
+        setTimeout(() => this.notificationService.refreshCount(this.authService.getUserId()), 2000);
+      },
       error: (err) => { this.successMsg = err?.error?.message || 'Check-in failed.'; }
     });
   }
@@ -115,6 +121,7 @@ export class MyBookingsComponent implements OnInit {
     this.bookingService.checkOut(id).subscribe({
       next: (b) => {
         this.loadData();
+        setTimeout(() => this.notificationService.refreshCount(this.authService.getUserId()), 2000);
         if (booking?.bookingType === 'WALK_IN' && b.totalAmount && b.totalAmount > 0) {
           this.pendingCheckoutBookingId = null;
           this.paymentBooking = b;
@@ -141,7 +148,11 @@ export class MyBookingsComponent implements OnInit {
     if (!confirm('Cancel this booking?')) return;
     this.successMsg = '';
     this.bookingService.cancelBooking(id).subscribe({
-      next: () => { this.successMsg = 'Booking cancelled.'; this.loadData(); },
+      next: () => {
+        this.successMsg = 'Booking cancelled.';
+        this.loadData();
+        setTimeout(() => this.notificationService.refreshCount(this.authService.getUserId()), 2000);
+      },
       error: () => { this.successMsg = 'Cancel failed.'; }
     });
   }
