@@ -51,3 +51,6 @@ Thumbs.db
 src/environments/environment.ts
 src/environments/environment.prod.ts
 parkease-angular/src/environments/
+
+# Visual Studio Code
+.vscode/
